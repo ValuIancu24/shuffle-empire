@@ -1,0 +1,16 @@
+.game-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .upgrade-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  h1 {
+    margin-bottom: 20px;
+    color: #f5cb5c;
+  }
