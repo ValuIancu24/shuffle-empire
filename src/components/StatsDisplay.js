@@ -9,18 +9,23 @@ function StatsDisplay({
   logProgressPercent,
   progressPercent 
 }) {
-  // Format large numbers
+  // Format large numbers with better notation
   const formatNumber = (num) => {
     if (num < 1000) return num.toFixed(0);
     if (num < 1000000) return (num / 1000).toFixed(2) + 'K';
-    if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
+    if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M'; 
     if (num < 1000000000000) return (num / 1000000000).toFixed(2) + 'B';
     if (num < 1000000000000000) return (num / 1000000000000).toFixed(2) + 'T';
+    if (num < 1000000000000000000) return (num / 1000000000000000).toFixed(2) + 'Qa';
+    if (num < 1e21) return (num / 1e18).toFixed(2) + 'Qi';
+    if (num < 1e24) return (num / 1e21).toFixed(2) + 'Sx';
+    if (num < 1e27) return (num / 1e24).toFixed(2) + 'Sp';
+    // For extremely large numbers, use scientific notation
     return num.toExponential(2);
   };
 
   // Format the 52! number
-  const FACTORIAL_52 = '80,658,175,170,943,878,571,660,636,856,403,766,975,289,505,440,883,277,824,000,000,000,000';
+  const FACTORIAL_52 = '8.07 × 10^67';
 
   return (
     <div className="stats-display">

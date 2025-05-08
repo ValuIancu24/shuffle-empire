@@ -1,93 +1,131 @@
 .automation-panel {
-    flex: 1;
-    background-color: #1e222a;
-    border-radius: 8px;
-    padding: 20px;
-    margin-left: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    max-width: 48%;
-  }
-  
-  .automators-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .automator-item {
-    display: flex;
-    background-color: #2c313c;
-    border-radius: 6px;
-    padding: 15px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-  }
-  
-  .automator-item.can-buy {
-    border-color: #50c878;
-  }
-  
-  .automator-item.cannot-buy {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-  
-  .automator-item.can-buy:hover {
-    background-color: #343b4a;
-    transform: translateY(-2px);
-  }
-  
-  .automator-icon {
-    font-size: 40px;
-    margin-right: 15px;
-    color: #f5cb5c;
-    display: flex;
-    align-items: center;
-  }
-  
-  .automator-info {
-    flex-grow: 1;
-  }
-  
-  .automator-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 5px;
-  }
-  
-  .automator-info h3 {
-    font-size: 18px;
-    color: #d9d9d9;
-    margin: 0;
-  }
-  
-  .automator-count {
-    font-size: 14px;
-    color: #f5cb5c;
-    font-weight: bold;
-  }
-  
-  .automator-description {
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: #8d99ae;
-  }
-  
-  .automator-details {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-  }
-  
-  .automator-level, .automator-production {
-    font-size: 14px;
-    color: #d9d9d9;
-  }
-  
-  .automator-cost {
-    font-size: 16px;
-    color: #50c878;
-    font-weight: bold;
-  }
+  flex: 1;
+  background-color: #1e222a;
+  border-radius: 8px;
+  padding: 20px;
+  margin-left: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 48%;
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+}
+
+.automators-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 10px;
+}
+
+.automator-item {
+  display: flex;
+  background-color: #2c313c;
+  border-radius: 6px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.automator-item.can-buy {
+  border-color: #50c878;
+}
+
+.automator-item.cannot-buy {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.automator-item.max-level {
+  background-color: #3d4252;
+  border-color: #f5cb5c;
+  cursor: default;
+}
+
+.automator-item.can-buy:hover {
+  background-color: #343b4a;
+  transform: translateY(-2px);
+}
+
+.automator-icon {
+  font-size: 40px;
+  margin-right: 15px;
+  color: #f5cb5c;
+  display: flex;
+  align-items: center;
+}
+
+.automator-info {
+  flex-grow: 1;
+}
+
+.automator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.automator-info h3 {
+  font-size: 18px;
+  color: #d9d9d9;
+  margin: 0;
+}
+
+.automator-level {
+  font-size: 14px;
+  color: #f5cb5c;
+  font-weight: bold;
+}
+
+.automator-description {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #8d99ae;
+}
+
+.automator-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.automator-production, .automator-next-level {
+  font-size: 14px;
+  color: #d9d9d9;
+}
+
+.automator-cost {
+  font-size: 16px;
+  color: #50c878;
+  font-weight: bold;
+}
+
+.automator-max-level {
+  font-size: 16px;
+  color: #f5cb5c;
+  font-weight: bold;
+  text-align: right;
+}
+
+/* Custom scrollbar for the automators list */
+.automators-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.automators-list::-webkit-scrollbar-track {
+  background: #1e222a;
+  border-radius: 4px;
+}
+
+.automators-list::-webkit-scrollbar-thumb {
+  background: #3d4252;
+  border-radius: 4px;
+}
+
+.automators-list::-webkit-scrollbar-thumb:hover {
+  background: #4d5262;
+}
