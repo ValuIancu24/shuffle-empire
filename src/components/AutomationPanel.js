@@ -32,6 +32,40 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
     }
   };
 
+  // Calculate non-linear value for flat automators
+  const getFlatAutomatorValue = (baseValue, level) => {
+    if (level === 0) return 0;
+    
+    // Create a triangular scaling (1, 3, 6, 10, 15...)
+    let value = 0;
+    for (let i = 1; i <= level; i++) {
+      value += i;
+    }
+    return baseValue * value;
+  };
+  
+  // Get multiplier automator value (bonus only, not total multiplier)
+  const getMultiplierValue = (automator, level) => {
+    if (level === 0) return 0; // Return 0 for level 0 (no bonus)
+    
+    let bonusValues;
+    if (automator === 'cardFactory') {
+      // Display integers only - changed from [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
+      bonusValues = [0, 1, 2, 3, 4, 5, 7, 9, 11, 15]; // Bonus values (no decimals)
+    } else if (automator === 'shufflePortal') {
+      // Changed from [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
+      bonusValues = [0, 2, 4, 8, 12, 20, 35, 55, 80, 120]; 
+    } else if (automator === 'parallelUniverse') {
+      // Changed from [1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683]
+      bonusValues = [0, 3, 10, 30, 90, 250, 750, 2200, 6500, 20000]; 
+    } else {
+      // Default bonus is level itself
+      return level;
+    }
+    
+    return level < bonusValues.length ? bonusValues[level] : bonusValues[bonusValues.length - 1];
+  };
+
   // Get automator effect (current value)
   const getAutomatorEffect = (key, level) => {
     const automator = automators[key];
@@ -39,11 +73,16 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
     if (!automator || level === 0) return '0';
     
     if (automator.type === 'flat') {
-      return formatNumber(automator.production * level);
+      // Use non-linear scaling for flat automators
+      return formatNumber(getFlatAutomatorValue(automator.production, level));
     } else if (automator.type === 'percentage') {
-      return `${automator.percentage * level}%`;
+      // Calculate multiplicative percentage increase
+      const multiplier = Math.pow(1 + (automator.percentage / 100), level);
+      const percentage = (multiplier - 1) * 100;
+      return `${percentage.toFixed(1)}%`;
     } else if (automator.type === 'multiplier') {
-      return `${formatNumber(Math.pow(automator.multiplier, level))}×`;
+      // Show only the bonus (no + sign)
+      return `${formatNumber(getMultiplierValue(key, level))}`;
     }
     
     return '0';
@@ -57,17 +96,32 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
     if (nextLevel > automator.maxLevel) return "MAX";
     
     if (automator.type === 'flat') {
-      // Show the amount added for the next level
-      return `+${formatNumber(automator.production)}`;
+      // Calculate the actual increase for flat automators
+      const currentValue = getFlatAutomatorValue(automator.production, level);
+      const nextValue = getFlatAutomatorValue(automator.production, nextLevel);
+      return `+${formatNumber(nextValue - currentValue)}`;
     } else if (automator.type === 'multiplier') {
-      // Show the factor increase
-      const currentMultiplier = level > 0 ? Math.pow(automator.multiplier, level) : 1;
-      const nextMultiplier = Math.pow(automator.multiplier, nextLevel);
-      const factor = nextMultiplier / currentMultiplier;
-      return `×${factor.toFixed(2)}`;
+      // Calculate the bonus increase from current to next level
+      const current = getMultiplierValue(key, level);
+      const next = getMultiplierValue(key, nextLevel);
+      return `+${formatNumber(next - current)}`;
     } else if (automator.type === 'percentage') {
-      // Show the percentage increase
-      return `+${automator.percentage}%`;
+      // Quality bonus percentage calculation
+      const bonus = automator.percentage;
+      
+      // For first level, show the direct percentage
+      if (level === 0) {
+        return `+${bonus}%`;
+      }
+      
+      // For subsequent levels, calculate the actual increase
+      const currentMultiplier = Math.pow(1 + (bonus / 100), level);
+      const nextMultiplier = Math.pow(1 + (bonus / 100), nextLevel);
+      
+      // Calculate percentage increase from current to next level
+      const increaseFactor = ((nextMultiplier / currentMultiplier) - 1) * 100;
+      
+      return `+${increaseFactor.toFixed(1)}%`;
     }
     
     return 'Unknown';

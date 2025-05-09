@@ -214,13 +214,14 @@ function Game() {
   
   // Calculate shuffles per click based on upgrades
   const calculateShufflesPerClick = (upgrades) => {
+    // FLAT UPGRADES - Non-linear scaling
     // Technique values - extended for more levels
-    const techniqueValues = [1, 3, 5, 8, 11, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120, 
+    const techniqueValues = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120, 
                            140, 165, 195, 230, 270, 315, 365, 420, 480, 550, 625, 710, 800, 
                            900, 1000, 1200, 1400, 1600, 1900, 2200, 2500, 2900, 3400, 3900, 
                            4500, 5200, 6000, 7000, 8000, 9000, 10000, 12000, 14000, 16000, 20000];
     
-    // Advanced technique values - higher tier
+    // Advanced technique values - higher tier, non-linear scaling
     const advancedTechniqueValues = [0, 50, 100, 200, 350, 550, 800, 1200, 1700, 2500, 3500, 
                                   5000, 7000, 10000, 14000, 20000, 27000, 36000, 48000, 
                                   60000, 75000, 95000, 120000, 150000, 190000, 240000, 
@@ -231,22 +232,34 @@ function Game() {
 
     // Calculate base value from technique
     const techniqueLevel = upgrades.technique.level;
-    const techValue = techniqueLevel < techniqueValues.length && techniqueLevel > 0 ? 
-      techniqueValues[techniqueLevel] : (techniqueLevel >= techniqueValues.length ? techniqueValues[techniqueValues.length - 1] : 0);
+    const techValue = techniqueLevel < techniqueValues.length ? 
+      techniqueValues[techniqueLevel] : techniqueValues[techniqueValues.length - 1];
     
     // Add advanced technique if unlocked
     const advancedLevel = upgrades.advancedTechnique.level;
-    const advancedValue = advancedLevel < advancedTechniqueValues.length && advancedLevel > 0 ? 
-      advancedTechniqueValues[advancedLevel] : (advancedLevel >= advancedTechniqueValues.length ? advancedTechniqueValues[advancedTechniqueValues.length - 1] : 0);
+    const advancedValue = advancedLevel < advancedTechniqueValues.length ? 
+      advancedTechniqueValues[advancedLevel] : advancedTechniqueValues[advancedTechniqueValues.length - 1];
       
-    const baseValue = techValue + advancedValue;
+    // Base value, always at least 1
+    const baseValue = Math.max(1, techValue + advancedValue);
     
-    // Quality and enchantment - percentage boosts
+    // PERCENTAGE UPGRADES - Apply multiplicatively
+    let percentageMultiplier = 1;
+    
+    // Apply Card Quality boost (multiplicatively)
     const qualityLevel = upgrades.cardQuality.level;
-    const enchantmentLevel = upgrades.cardEnchantment.level;
-    const percentageBoost = (qualityLevel * 30 + enchantmentLevel * 50) / 100;
+    for (let i = 0; i < qualityLevel; i++) {
+      percentageMultiplier *= 1.3; // 30% increase per level
+    }
     
-    // Deck multipliers
+    // Apply Card Enchantment boost (multiplicatively)
+    const enchantmentLevel = upgrades.cardEnchantment.level;
+    for (let i = 0; i < enchantmentLevel; i++) {
+      percentageMultiplier *= 1.5; // 50% increase per level
+    }
+    
+    // MULTIPLIER UPGRADES - Use predefined values from arrays
+    // Deck multipliers - using array values directly (including base 1×)
     const deckMultipliers = [1, 2, 3, 6, 10, 15, 22, 30, 40, 55, 75, 100, 135, 180, 240, 
                            320, 430, 580, 780, 1050, 1400, 1900, 2500, 3400, 4500, 6000, 
                            8000, 10500, 14000, 19000, 25000, 33000, 44000, 58000, 77000, 
@@ -267,15 +280,15 @@ function Game() {
                                 Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
 
     const deckLevel = upgrades.multiDeck.level;
-    const deckMultiplier = deckLevel < deckMultipliers.length && deckLevel > 0 ? 
-      deckMultipliers[deckLevel] : (deckLevel >= deckMultipliers.length ? deckMultipliers[deckMultipliers.length - 1] : 1);
+    const deckMultiplier = deckLevel < deckMultipliers.length ? 
+      deckMultipliers[deckLevel] : deckMultipliers[deckMultipliers.length - 1];
     
     const dimensionLevel = upgrades.deckDimension.level;
-    const dimensionMultiplier = dimensionLevel < dimensionMultipliers.length && dimensionLevel > 0 ? 
-      dimensionMultipliers[dimensionLevel] : (dimensionLevel >= dimensionMultipliers.length ? dimensionMultipliers[dimensionMultipliers.length - 1] : 1);
+    const dimensionMultiplier = dimensionLevel < dimensionMultipliers.length ? 
+      dimensionMultipliers[dimensionLevel] : dimensionMultipliers[dimensionMultipliers.length - 1];
     
-    // Calculate final value (ensure minimum of 1)
-    const result = Math.max(1, baseValue * (1 + percentageBoost) * deckMultiplier * dimensionMultiplier);
+    // Calculate final value
+    const result = Math.max(1, baseValue * percentageMultiplier * deckMultiplier * dimensionMultiplier);
     setShufflesPerClick(result);
   };
   
@@ -312,28 +325,66 @@ function Game() {
   
   // Calculate shuffles per second based on automators
   const calculateShufflesPerSecond = (autos) => {
+    // FLAT AUTOMATORS - Non-linear scaling
+    // Values for automator production by level
+    const getAutomatorValue = (baseValue, level) => {
+      if (level === 0) return 0;
+      
+      // Create a triangular scaling (1, 3, 6, 10, 15...)
+      let value = 0;
+      for (let i = 1; i <= level; i++) {
+        value += i;
+      }
+      return baseValue * value;
+    };
+    
     // Calculate base production from flat automators
     let baseProduction = 0;
     Object.keys(autos).forEach(key => {
       if (autos[key].type === 'flat' && autos[key].level > 0) {
-        baseProduction += autos[key].production * autos[key].level;
+        baseProduction += getAutomatorValue(autos[key].production, autos[key].level);
       }
     });
     
-    // Apply percentage boosts
+    // PERCENTAGE AUTOMATORS - Apply multiplicatively
     let percentageMultiplier = 1;
     Object.keys(autos).forEach(key => {
       if (autos[key].type === 'percentage' && autos[key].level > 0) {
-        percentageMultiplier += (autos[key].percentage / 100) * autos[key].level;
+        // Apply each level multiplicatively
+        for (let i = 0; i < autos[key].level; i++) {
+          percentageMultiplier *= (1 + autos[key].percentage / 100);
+        }
       }
     });
     
-    // Apply direct multipliers
+    // MULTIPLIER AUTOMATORS - Use fixed arrays
+    // Define fixed multiplier values for each automator type (actual values used in calculation)
+    const getMultiplierValue = (automator, level) => {
+      if (level === 0) return 1; // Base multiplier is 1× when not upgraded
+      
+      let multipliers;
+      if (automator === 'cardFactory') {
+        // Actual values used in calculation (starting with 1.5×)
+        multipliers = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16];
+      } else if (automator === 'shufflePortal') {
+        // Actual values used in calculation (starting with 2×)
+        multipliers = [1, 3, 5, 9, 13, 21, 36, 56, 81, 121];
+      } else if (automator === 'parallelUniverse') {
+        // Actual values used in calculation (starting with 3×)
+        multipliers = [1, 4, 11, 31, 91, 251, 751, 2201, 6501, 20001];
+      } else {
+        // Default multiplier is level + 1
+        return level + 1;
+      }
+      
+      return level < multipliers.length ? multipliers[level] : multipliers[multipliers.length - 1];
+    };
+    
+    // Apply multipliers
     let totalMultiplier = 1;
     Object.keys(autos).forEach(key => {
       if (autos[key].type === 'multiplier' && autos[key].level > 0) {
-        // Apply multiplier based on level
-        totalMultiplier *= Math.pow(autos[key].multiplier, autos[key].level);
+        totalMultiplier *= getMultiplierValue(key, autos[key].level);
       }
     });
     
