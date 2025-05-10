@@ -34,7 +34,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       case 'deckEnhancer': return 'Deck Enhancer';
       case 'shuffleTrainer': return 'Shuffle Trainer';
       case 'timeAccelerator': return 'Time Accelerator';
-      case 'cardFactory': return 'Card Factory';
+      case 'cardFactory': return 'Card Factory'; // Changed from GiCardburn to GiCardPlay
       case 'shufflePortal': return 'Shuffle Portal';
       case 'parallelUniverse': return 'Parallel Universe';
       default: return key;
@@ -175,12 +175,9 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
           return (
             <div 
               key={key} 
-              className={`automator-item ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
+              className={`automator-item automator-type-${automator.type} ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
               onClick={() => !isMaxLevel && canBuy && onBuyAutomator(key)}
             >
-              {/* Type indicator dot */}
-              <div className={`automator-type-indicator automator-type-${automator.type}`}></div>
-              
               <div className="automator-icon">{getAutomatorIcon(key)}</div>
               
               <div className="automator-info">
@@ -197,7 +194,10 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
                   <>
                     <div className="automator-effects">
                       <div className="effect-current">
-                        <span className="effect-label">{getProductionLabel(automator.type)}</span>
+                        <span className="effect-label">
+                          <span className={`type-icon type-icon-${automator.type}`}></span>
+                          {getProductionLabel(automator.type)}
+                        </span>
                         <span className="effect-value">{getAutomatorEffect(key, automator.level)}</span>
                       </div>
                       
