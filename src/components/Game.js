@@ -240,8 +240,8 @@ function Game() {
     const advancedValue = advancedLevel < advancedTechniqueValues.length ? 
       advancedTechniqueValues[advancedLevel] : advancedTechniqueValues[advancedTechniqueValues.length - 1];
       
-    // Base value, always at least 1
-    const baseValue = Math.max(1, techValue + advancedValue);
+    // Base value - add 1 to upgrade values (THIS IS THE FIXED LINE)
+    const baseValue = 1 + techValue + advancedValue;
     
     // PERCENTAGE UPGRADES - Apply multiplicatively
     let percentageMultiplier = 1;
@@ -288,7 +288,7 @@ function Game() {
       dimensionMultipliers[dimensionLevel] : dimensionMultipliers[dimensionMultipliers.length - 1];
     
     // Calculate final value
-    const result = Math.max(1, baseValue * percentageMultiplier * deckMultiplier * dimensionMultiplier);
+    const result = baseValue * percentageMultiplier * deckMultiplier * dimensionMultiplier;
     setShufflesPerClick(result);
   };
   
