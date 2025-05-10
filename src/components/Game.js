@@ -594,18 +594,24 @@ function Game() {
   
   return (
     <div className="game-container">
-      <h1>Shuffle Empire</h1>
+      <div className="game-header">
+        <h1>Shuffle Empire</h1>
+      </div>
       
-      <StatsDisplay 
-        shuffleCount={shuffleCount} 
-        shufflesPerSecond={shufflesPerSecond}
-        shufflesPerClick={shufflesPerClick}
-        shufflePoints={shufflePoints}
-        logProgressPercent={logProgressPercent}
-        progressPercent={progressPercent}
-      />
+      <div className="stats-section">
+        <StatsDisplay 
+          shuffleCount={shuffleCount} 
+          shufflesPerSecond={shufflesPerSecond}
+          shufflesPerClick={shufflesPerClick}
+          shufflePoints={shufflePoints}
+          logProgressPercent={logProgressPercent}
+          progressPercent={progressPercent}
+        />
+      </div>
       
-      <ShuffleArea onShuffle={handleShuffle} />
+      <div className="shuffle-section">
+        <ShuffleArea onShuffle={handleShuffle} />
+      </div>
       
       <div className="upgrade-container">
         <UpgradePanel 
@@ -621,8 +627,9 @@ function Game() {
         />
       </div>
       
-      {/* Reset Button */}
-      <ResetButton onReset={resetGame} />
+      <div className="reset-container">
+        <ResetButton onReset={resetGame} />
+      </div>
       
       {/* Offline Progress Modal */}
       {showOfflineModal && (
