@@ -51,7 +51,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       case 'deckEnhancer': return <GiDiamondHard />;
       case 'shuffleTrainer': return <GiTeacher />;
       case 'timeAccelerator': return <GiClockwiseRotation />;
-      case 'cardFactory': return <GiCardPlay />; // Changed from GiCardburn to GiCardPlay
+      case 'cardFactory': return <GiCardPlay />;
       case 'shufflePortal': return <GiUbisoftSun />;
       case 'parallelUniverse': return <GiUbisoftSun />;
       default: return <GiCardRandom />;
@@ -175,12 +175,9 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
           return (
             <div 
               key={key} 
-              className={`automator-item ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
+              className={`automator-item automator-type-${automator.type} ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
               onClick={() => !isMaxLevel && canBuy && onBuyAutomator(key)}
             >
-              {/* Type indicator dot */}
-              <div className={`automator-type-indicator automator-type-${automator.type}`}></div>
-              
               <div className="automator-icon">{getAutomatorIcon(key)}</div>
               
               <div className="automator-info">
@@ -197,7 +194,10 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
                   <>
                     <div className="automator-effects">
                       <div className="effect-current">
-                        <span className="effect-label">{getProductionLabel(automator.type)}</span>
+                        <span className="effect-label">
+                          <span className={`type-icon type-icon-${automator.type}`}></span>
+                          {getProductionLabel(automator.type)}
+                        </span>
                         <span className="effect-value">{getAutomatorEffect(key, automator.level)}</span>
                       </div>
                       
