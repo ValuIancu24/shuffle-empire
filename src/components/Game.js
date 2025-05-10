@@ -3,6 +3,8 @@ import ShuffleArea from './ShuffleArea';
 import UpgradePanel from './UpgradePanel';
 import AutomationPanel from './AutomationPanel';
 import StatsDisplay from './StatsDisplay';
+import ResetButton from './ResetButton';
+import OfflineProgressModal from './OfflineProgressModal';
 import './Game.css';
 
 function Game() {
@@ -11,6 +13,15 @@ function Game() {
   const [shufflePoints, setShufflePoints] = useState(0);
   const [shufflesPerClick, setShufflesPerClick] = useState(1);
   const [shufflesPerSecond, setShufflesPerSecond] = useState(0);
+  
+  // Save/load related state
+  const [lastSaveTime, setLastSaveTime] = useState(Date.now());
+  const [showOfflineModal, setShowOfflineModal] = useState(false);
+  const [offlineProgress, setOfflineProgress] = useState({
+    timeAway: 0,
+    shufflesGained: 0,
+    pointsGained: 0
+  });
   
   // Manual upgrades with increased max levels
   const [manualUpgrades, setManualUpgrades] = useState({
@@ -171,7 +182,140 @@ function Game() {
   
   // Last update time for automation
   const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Load saved game when component mounts
+  useEffect(() => {
+    loadGame();
+  }, []);
   
+  // Save game periodically
+  useEffect(() => {
+    const saveInterval = setInterval(() => {
+      saveGame();
+    }, 30000); // Save every 30 seconds
+    
+    return () => clearInterval(saveInterval);
+  }, [shuffleCount, shufflePoints, shufflesPerClick, shufflesPerSecond, manualUpgrades, automators]);
+
+  // Save game when user leaves/refreshes the page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveGame();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [shuffleCount, shufflePoints, shufflesPerClick, shufflesPerSecond, manualUpgrades, automators]);
+
+  // Save game data to localStorage
+  const saveGame = () => {
+    const gameData = {
+      shuffleCount,
+      shufflePoints,
+      shufflesPerClick,
+      shufflesPerSecond,
+      manualUpgrades,
+      automators,
+      lastSaveTime: Date.now()
+    };
+    
+    localStorage.setItem('shuffleEmpireSave', JSON.stringify(gameData));
+    console.log('Game saved:', new Date().toLocaleTimeString());
+  };
+
+  // Load game data from localStorage
+  const loadGame = () => {
+    try {
+      const savedGame = localStorage.getItem('shuffleEmpireSave');
+      
+      if (savedGame) {
+        const gameData = JSON.parse(savedGame);
+        
+        // Calculate offline progress
+        const currentTime = Date.now();
+        const savedTime = gameData.lastSaveTime || currentTime;
+        const timeAway = (currentTime - savedTime) / 1000; // in seconds
+        
+        // Only process offline time if it's been more than 5 seconds 
+        // and there's actual production happening
+        if (timeAway > 5 && gameData.shufflesPerSecond > 0) {
+          // Cap offline time to 3 days to prevent excessive gains
+          const cappedTimeAway = Math.min(timeAway, 259200); // 3 days in seconds
+          const offlineShuffles = gameData.shufflesPerSecond * cappedTimeAway;
+          
+          // Update game data with offline progress
+          gameData.shuffleCount += offlineShuffles;
+          gameData.shufflePoints += offlineShuffles;
+          
+          // Set offline progress to show in modal
+          setOfflineProgress({
+            timeAway: cappedTimeAway,
+            shufflesGained: offlineShuffles,
+            pointsGained: offlineShuffles
+          });
+          
+          // Show offline progress modal
+          setShowOfflineModal(true);
+        }
+        
+        // Update all state variables with saved data
+        setShuffleCount(gameData.shuffleCount || 0);
+        setShufflePoints(gameData.shufflePoints || 0);
+        setShufflesPerClick(gameData.shufflesPerClick || 1);
+        setShufflesPerSecond(gameData.shufflesPerSecond || 0);
+        setManualUpgrades(gameData.manualUpgrades || manualUpgrades);
+        setAutomators(gameData.automators || automators);
+        setLastSaveTime(gameData.lastSaveTime || Date.now());
+        
+        console.log('Game loaded:', new Date().toLocaleTimeString());
+      }
+    } catch (error) {
+      console.error('Error loading game:', error);
+    }
+  };
+
+  // Reset game progress (clears localStorage and resets all state)
+  const resetGame = () => {
+    // Clear localStorage
+    localStorage.removeItem('shuffleEmpireSave');
+    
+    // Reset all state variables to default values
+    setShuffleCount(0);
+    setShufflePoints(0);
+    setShufflesPerClick(1);
+    setShufflesPerSecond(0);
+    
+    // Reset all upgrades
+    const resetUpgrades = { ...manualUpgrades };
+    Object.keys(resetUpgrades).forEach(key => {
+      resetUpgrades[key].level = 0;
+      resetUpgrades[key].cost = resetUpgrades[key].baseCost;
+    });
+    setManualUpgrades(resetUpgrades);
+    
+    // Reset all automators
+    const resetAutomators = { ...automators };
+    Object.keys(resetAutomators).forEach(key => {
+      resetAutomators[key].level = 0;
+      resetAutomators[key].cost = resetAutomators[key].baseCost;
+    });
+    setAutomators(resetAutomators);
+    
+    // Reset timestamps
+    setLastUpdate(Date.now());
+    setLastSaveTime(Date.now());
+    
+    console.log('Game reset:', new Date().toLocaleTimeString());
+  };
+  
+  // Handle closing the offline progress modal
+  const handleCloseOfflineModal = () => {
+    setShowOfflineModal(false);
+  };
+
   // Handle manual shuffle
   const handleShuffle = () => {
     setShuffleCount(prev => prev + shufflesPerClick);
@@ -319,6 +463,9 @@ function Game() {
     setAutomators(updatedAutomators);
     setShufflePoints(newPoints);
     
+    // Reset last update time to now to prevent large initial production
+    setLastUpdate(Date.now());
+    
     // Calculate new shuffles per second
     calculateShufflesPerSecond(updatedAutomators);
   };
@@ -416,6 +563,35 @@ function Game() {
   const logProgressPercent = shuffleCount > 0 ? 
     (Math.log10(shuffleCount) / Math.log10(FACTORIAL_52)) * 100 : 0;
   
+  // Format time for display (for offline progress)
+  const formatTime = (seconds) => {
+    if (seconds < 60) return `${Math.floor(seconds)} seconds`;
+    if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes} minute${minutes !== 1 ? 's' : ''} ${remainingSeconds} second${remainingSeconds !== 1 ? 's' : ''}`;
+    }
+    if (seconds < 86400) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+    
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    return `${days} day${days !== 1 ? 's' : ''} ${hours} hour${hours !== 1 ? 's' : ''}`;
+  };
+  
+  // Format large numbers for display
+  const formatNumber = (num) => {
+    if (num < 1000) return num.toFixed(0);
+    if (num < 1000000) return (num / 1000).toFixed(2) + 'K';
+    if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
+    if (num < 1000000000000) return (num / 1000000000).toFixed(2) + 'B';
+    if (num < 1000000000000000) return (num / 1000000000000).toFixed(2) + 'T';
+    return num.toExponential(2);
+  };
+  
   return (
     <div className="game-container">
       <h1>Shuffle Empire</h1>
@@ -444,6 +620,19 @@ function Game() {
           onBuyAutomator={handleBuyAutomator}
         />
       </div>
+      
+      {/* Reset Button */}
+      <ResetButton onReset={resetGame} />
+      
+      {/* Offline Progress Modal */}
+      {showOfflineModal && (
+        <OfflineProgressModal 
+          timeAway={formatTime(offlineProgress.timeAway)}
+          shufflesGained={formatNumber(offlineProgress.shufflesGained)}
+          pointsGained={formatNumber(offlineProgress.pointsGained)}
+          onClose={handleCloseOfflineModal}
+        />
+      )}
     </div>
   );
 }

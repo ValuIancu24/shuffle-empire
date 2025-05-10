@@ -1,0 +1,142 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .offline-modal {
+    background-color: #1e222a;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    width: 90%;
+    max-width: 500px;
+    overflow: hidden;
+    position: relative;
+    animation: modal-appear 0.3s ease-out;
+  }
+  
+  @keyframes modal-appear {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .modal-header {
+    background: linear-gradient(145deg, #1a1e24, #2c313c);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  
+  .modal-icon {
+    font-size: 32px;
+    color: #f5cb5c;
+    margin-right: 15px;
+  }
+  
+  .modal-header h2 {
+    color: #f5cb5c;
+    margin: 0;
+    font-size: 24px;
+  }
+  
+  .close-button {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    background: none;
+    border: none;
+    color: #8d99ae;
+    font-size: 24px;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .close-button:hover {
+    color: #d9d9d9;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .modal-content {
+    padding: 20px;
+    color: #d9d9d9;
+  }
+  
+  .modal-content p {
+    font-size: 18px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  
+  .highlight {
+    color: #f5cb5c;
+    font-weight: bold;
+  }
+  
+  .progress-details {
+    background-color: #2c313c;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+  
+  .progress-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3d4252;
+  }
+  
+  .progress-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .progress-label {
+    font-weight: bold;
+    color: #8d99ae;
+  }
+  
+  .progress-value {
+    font-family: monospace;
+    font-size: 18px;
+    color: #f5cb5c;
+    font-weight: bold;
+  }
+  
+  .collect-button {
+    background: linear-gradient(145deg, #f5cb5c, #e6a627);
+    border: none;
+    width: 100%;
+    padding: 15px;
+    color: #1e222a;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .collect-button:hover {
+    background: linear-gradient(145deg, #e6a627, #f5cb5c);
+  }
