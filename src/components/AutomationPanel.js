@@ -82,7 +82,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       return `${percentage.toFixed(1)}%`;
     } else if (automator.type === 'multiplier') {
       // Show only the bonus (no + sign)
-      return `${formatNumber(getMultiplierValue(key, level))}`;
+      return `${formatNumber(getMultiplierValue(key, level))}x`;
     }
     
     return '0';
@@ -104,7 +104,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       // Calculate the bonus increase from current to next level
       const current = getMultiplierValue(key, level);
       const next = getMultiplierValue(key, nextLevel);
-      return `+${formatNumber(next - current)}`;
+      return `+${formatNumber(next - current)}x`;
     } else if (automator.type === 'percentage') {
       // Quality bonus percentage calculation
       const bonus = automator.percentage;

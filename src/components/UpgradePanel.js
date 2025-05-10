@@ -45,10 +45,10 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       
       if (upgrade === 'multiDeck') {
         const multipliers = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74]; // Bonus only (not including base 1×)
-        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}`;
+        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}x`;
       } else {
         const multipliers = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999]; // Bonus only
-        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}`;
+        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}x`;
       }
     }
     return '0'; // Default fallback
@@ -110,7 +110,7 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       const next = nextLevel < bonusValues.length ? bonusValues[nextLevel] : bonusValues[bonusValues.length-1];
       
       // Show the absolute increase
-      return `+${next - current}`;
+      return `+${next - current}x`;
     }
     return '0'; // Default fallback
   };
