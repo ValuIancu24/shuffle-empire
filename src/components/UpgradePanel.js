@@ -1,6 +1,12 @@
 import React from 'react';
 import { 
-  GiCardRandom
+  GiCardRandom,
+  GiUpgrade,
+  GiCardPlay,
+  GiCardAceSpades,
+  GiCardJoker,
+  GiMagicSwirl,
+  GiCubes
 } from 'react-icons/gi';
 import './UpgradePanel.css';
 
@@ -128,43 +134,82 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
     }
   };
 
+  // Get icon for each upgrade
+  const getUpgradeIcon = (key) => {
+    switch(key) {
+      case 'technique': return <GiCardPlay />;
+      case 'cardQuality': return <GiCardAceSpades />;
+      case 'multiDeck': return <GiCardJoker />;
+      case 'advancedTechnique': return <GiUpgrade />;
+      case 'cardEnchantment': return <GiMagicSwirl />;
+      case 'deckDimension': return <GiCubes />;
+      default: return <GiCardRandom />;
+    }
+  };
+
+  // Get type label based on upgrade type
+  const getTypeLabel = (type) => {
+    switch(type) {
+      case 'flat': return 'Value';
+      case 'percentage': return 'Bonus';
+      case 'multiplier': return 'Multiplier';
+      default: return 'Effect';
+    }
+  };
+
   return (
     <div className="upgrade-panel">
       <h2>Manual Upgrades</h2>
       <div className="upgrades-list">
         {Object.keys(manualUpgrades).map(key => {
-          const isMaxLevel = manualUpgrades[key].level >= manualUpgrades[key].maxLevel;
+          const upgrade = manualUpgrades[key];
+          const isMaxLevel = upgrade.level >= upgrade.maxLevel;
+          const canBuy = shufflePoints >= upgrade.cost;
+          
           return (
             <div 
               key={key} 
-              className={`upgrade-item ${isMaxLevel ? 'max-level' : shufflePoints >= manualUpgrades[key].cost ? 'can-buy' : 'cannot-buy'}`}
-              onClick={() => !isMaxLevel && onBuyUpgrade(key)}
+              className={`upgrade-item upgrade-type-${upgrade.type} ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
+              onClick={() => !isMaxLevel && canBuy && onBuyUpgrade(key)}
             >
-              <div className="upgrade-icon"><GiCardRandom /></div>
+              <div className="upgrade-icon">{getUpgradeIcon(key)}</div>
+              
               <div className="upgrade-info">
-                <h3>{getUpgradeName(key)}</h3>
-                <p className="upgrade-description">{manualUpgrades[key].description}</p>
-                <div className="upgrade-details">
+                <div className="upgrade-header">
+                  <h3>{getUpgradeName(key)}</h3>
                   <span className="upgrade-level">
-                    Level: {manualUpgrades[key].level}/{manualUpgrades[key].maxLevel}
-                  </span>
-                  <span className="upgrade-effect">
-                    Current: {getCurrentEffect(key, manualUpgrades[key].level)}
+                    Lvl {upgrade.level}/{upgrade.maxLevel}
                   </span>
                 </div>
+                
+                <p className="upgrade-description">{upgrade.description}</p>
+                
                 {!isMaxLevel ? (
-                  <div className="upgrade-details">
-                    <span className="upgrade-next">
-                      Next: {getNextEffect(key, manualUpgrades[key].level)}
-                    </span>
-                    <span className="upgrade-cost">
-                      Cost: {formatNumber(manualUpgrades[key].cost)} SP
-                    </span>
-                  </div>
+                  <>
+                    <div className="upgrade-effects">
+                      <div className="effect-current">
+                        <span className="effect-label">
+                          <span className={`type-icon type-icon-${upgrade.type}`}></span>
+                          {getTypeLabel(upgrade.type)}
+                        </span>
+                        <span className="effect-value">{getCurrentEffect(key, upgrade.level)}</span>
+                      </div>
+                      
+                      <span className="effect-arrow">→</span>
+                      
+                      <div className="effect-next">
+                        <span className="effect-label">Next</span>
+                        <span className="effect-value">{getNextEffect(key, upgrade.level)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="upgrade-cost">
+                      <span className="cost-label">Cost:</span>
+                      <span className="cost-value">{formatNumber(upgrade.cost)} SP</span>
+                    </div>
+                  </>
                 ) : (
-                  <div className="upgrade-details">
-                    <span className="upgrade-next">MAX LEVEL</span>
-                  </div>
+                  <div className="max-level-badge">MAXIMUM LEVEL REACHED</div>
                 )}
               </div>
             </div>
