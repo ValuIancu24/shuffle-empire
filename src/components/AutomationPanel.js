@@ -34,7 +34,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       case 'deckEnhancer': return 'Deck Enhancer';
       case 'shuffleTrainer': return 'Shuffle Trainer';
       case 'timeAccelerator': return 'Time Accelerator';
-      case 'cardFactory': return 'Card Factory';
+      case 'cardFactory': return 'Card Factory'; // Changed from GiCardburn to GiCardPlay
       case 'shufflePortal': return 'Shuffle Portal';
       case 'parallelUniverse': return 'Parallel Universe';
       default: return key;
@@ -51,7 +51,7 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       case 'deckEnhancer': return <GiDiamondHard />;
       case 'shuffleTrainer': return <GiTeacher />;
       case 'timeAccelerator': return <GiClockwiseRotation />;
-      case 'cardFactory': return <GiCardPlay />;
+      case 'cardFactory': return <GiCardPlay />; // Changed from GiCardburn to GiCardPlay
       case 'shufflePortal': return <GiUbisoftSun />;
       case 'parallelUniverse': return <GiUbisoftSun />;
       default: return <GiCardRandom />;
