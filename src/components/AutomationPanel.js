@@ -74,22 +74,39 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
   const getMultiplierValue = (automator, level) => {
     if (level === 0) return 0; // Return 0 for level 0 (no bonus)
     
-    let bonusValues;
+    // Initial bonus values for levels 1-10
+    let baseValues;
+    let growthFactor;
+    
     if (automator === 'cardFactory') {
-      // Display integers only - changed from [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]
-      bonusValues = [0, 1, 2, 3, 4, 5, 7, 9, 11, 15]; // Bonus values (no decimals)
+      // Base values (changed from [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10])
+      baseValues = [0, 1, 2, 3, 4, 5, 7, 9, 11, 15]; 
+      growthFactor = 1.2; // 20% growth per level after level 10
     } else if (automator === 'shufflePortal') {
-      // Changed from [1, 2, 3, 5, 8, 13, 21, 34, 55, 89]
-      bonusValues = [0, 2, 4, 8, 12, 20, 35, 55, 80, 120]; 
+      // Base values (changed from [1, 2, 3, 5, 8, 13, 21, 34, 55, 89])
+      baseValues = [0, 2, 4, 8, 12, 20, 35, 55, 80, 120]; 
+      growthFactor = 1.3; // 30% growth per level after level 10
     } else if (automator === 'parallelUniverse') {
-      // Changed from [1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683]
-      bonusValues = [0, 3, 10, 30, 90, 250, 750, 2200, 6500, 20000]; 
+      // Base values (changed from [1, 3, 9, 27, 81, 243, 729, 2187, 6561, 19683])
+      baseValues = [0, 3, 10, 30, 90, 250, 750, 2200, 6500, 20000]; 
+      growthFactor = 1.5; // 50% growth per level after level 10
     } else {
       // Default bonus is level itself
       return level;
     }
     
-    return level < bonusValues.length ? bonusValues[level] : bonusValues[bonusValues.length - 1];
+    // For levels 1-10, use the predefined values
+    if (level < baseValues.length) {
+      return baseValues[level];
+    }
+    
+    // For levels above 10, calculate based on growth factor
+    let value = baseValues[baseValues.length - 1];
+    for (let i = baseValues.length; i <= level; i++) {
+      value = Math.floor(value * growthFactor);
+    }
+    
+    return value;
   };
 
   // Get automator effect (current value)

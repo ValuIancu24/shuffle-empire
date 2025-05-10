@@ -5,6 +5,7 @@ import AutomationPanel from './AutomationPanel';
 import StatsDisplay from './StatsDisplay';
 import ResetButton from './ResetButton';
 import OfflineProgressModal from './OfflineProgressModal';
+import DebugButton from './DebugButton'; // Import the new DebugButton component
 import './Game.css';
 
 function Game() {
@@ -182,6 +183,12 @@ function Game() {
   
   // Last update time for automation
   const [lastUpdate, setLastUpdate] = useState(Date.now());
+
+  // Add 1000K trillion SP for testing purposes
+  const handleAddTestPoints = () => {
+    const thousand_thousand_trillion = 1000000000000000000; // 1000K trillion (10^18)
+    setShufflePoints(prev => prev + thousand_thousand_trillion);
+  };
 
   // Load saved game when component mounts
   useEffect(() => {
@@ -504,27 +511,44 @@ function Game() {
       }
     });
     
-    // MULTIPLIER AUTOMATORS - Use fixed arrays
-    // Define fixed multiplier values for each automator type (actual values used in calculation)
+    // MULTIPLIER AUTOMATORS - Use fixed arrays with growth for levels beyond array size
+    // Define fixed multiplier values for each automator type with growth factors
     const getMultiplierValue = (automator, level) => {
       if (level === 0) return 1; // Base multiplier is 1× when not upgraded
       
-      let multipliers;
+      // Initial bonus values for levels 1-10
+      let baseValues;
+      let growthFactor;
+      
       if (automator === 'cardFactory') {
-        // Actual values used in calculation (starting with 1.5×)
-        multipliers = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16];
+        // Base values for cardFactory
+        baseValues = [1, 2, 3, 4, 5, 6, 8, 10, 12, 16];
+        growthFactor = 1.2; // 20% growth per level after level 10
       } else if (automator === 'shufflePortal') {
-        // Actual values used in calculation (starting with 2×)
-        multipliers = [1, 3, 5, 9, 13, 21, 36, 56, 81, 121];
+        // Base values for shufflePortal
+        baseValues = [1, 3, 5, 9, 13, 21, 36, 56, 81, 121];
+        growthFactor = 1.3; // 30% growth per level after level 10
       } else if (automator === 'parallelUniverse') {
-        // Actual values used in calculation (starting with 3×)
-        multipliers = [1, 4, 11, 31, 91, 251, 751, 2201, 6501, 20001];
+        // Base values for parallelUniverse
+        baseValues = [1, 4, 11, 31, 91, 251, 751, 2201, 6501, 20001];
+        growthFactor = 1.5; // 50% growth per level after level 10
       } else {
         // Default multiplier is level + 1
         return level + 1;
       }
       
-      return level < multipliers.length ? multipliers[level] : multipliers[multipliers.length - 1];
+      // For levels 1-10, use the predefined values
+      if (level < baseValues.length) {
+        return baseValues[level];
+      }
+      
+      // For levels above 10, calculate based on growth factor
+      let value = baseValues[baseValues.length - 1];
+      for (let i = baseValues.length; i <= level; i++) {
+        value = Math.floor(value * growthFactor);
+      }
+      
+      return value;
     };
     
     // Apply multipliers
@@ -630,6 +654,9 @@ function Game() {
       <div className="reset-container">
         <ResetButton onReset={resetGame} />
       </div>
+      
+      {/* Debug Button */}
+      <DebugButton onAddPoints={handleAddTestPoints} />
       
       {/* Offline Progress Modal */}
       {showOfflineModal && (
