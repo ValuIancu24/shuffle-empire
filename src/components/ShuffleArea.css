@@ -1,41 +1,58 @@
 .shuffle-area {
-    margin: 20px 0;
-    text-align: center;
-  }
-  
+  margin: 5px 0;
+  text-align: center;
+}
+
+.shuffle-button {
+  background: linear-gradient(145deg, #1a1e24, #2c313c);
+  border: none;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.shuffle-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+}
+
+.shuffle-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-icon {
+  font-size: 50px;
+  margin-bottom: 8px;
+  color: #f5cb5c;
+}
+
+.shuffle-button span {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-height: 700px) {
   .shuffle-button {
-    background: linear-gradient(145deg, #1a1e24, #2c313c);
-    border: none;
-    border-radius: 50%;
-    width: 200px;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    color: white;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    transition: all 0.2s ease;
-  }
-  
-  .shuffle-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
-  }
-  
-  .shuffle-button:active {
-    transform: scale(0.95);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    width: 100px;
+    height: 100px;
   }
   
   .card-icon {
-    font-size: 80px;
-    margin-bottom: 10px;
-    color: #f5cb5c;
+    font-size: 40px;
+    margin-bottom: 5px;
   }
   
   .shuffle-button span {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 14px;
   }
+}
