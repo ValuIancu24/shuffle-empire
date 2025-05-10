@@ -1,6 +1,15 @@
 import React from 'react';
 import { 
-  GiCardRandom 
+  GiCardRandom,
+  GiPerson,
+  GiCardExchange,
+  GiDiamondHard,
+  GiFactoryArm,
+  GiTeacher,
+  GiUbisoftSun,
+  GiClockwiseRotation,
+  GiCardPlay,
+  GiAlienStare
 } from 'react-icons/gi';
 import './AutomationPanel.css';
 
@@ -29,6 +38,23 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       case 'shufflePortal': return 'Shuffle Portal';
       case 'parallelUniverse': return 'Parallel Universe';
       default: return key;
+    }
+  };
+
+  // Get icon for each automator
+  const getAutomatorIcon = (key) => {
+    switch(key) {
+      case 'noviceShuffler': return <GiPerson />;
+      case 'cardDealer': return <GiCardExchange />;
+      case 'shuffleMachine': return <GiFactoryArm />;
+      case 'cardAI': return <GiAlienStare />;
+      case 'deckEnhancer': return <GiDiamondHard />;
+      case 'shuffleTrainer': return <GiTeacher />;
+      case 'timeAccelerator': return <GiClockwiseRotation />;
+      case 'cardFactory': return <GiCardPlay />; // Changed from GiCardburn to GiCardPlay
+      case 'shufflePortal': return <GiUbisoftSun />;
+      case 'parallelUniverse': return <GiUbisoftSun />;
+      default: return <GiCardRandom />;
     }
   };
 
@@ -127,6 +153,16 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
     return 'Unknown';
   };
 
+  // Get production type label based on automator type
+  const getProductionLabel = (type) => {
+    switch(type) {
+      case 'flat': return 'Production';
+      case 'percentage': return 'Bonus';
+      case 'multiplier': return 'Multiplier';
+      default: return 'Effect';
+    }
+  };
+
   return (
     <div className="automation-panel">
       <h2>Automation</h2>
@@ -134,40 +170,52 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
         {Object.keys(automators).map(key => {
           const automator = automators[key];
           const isMaxLevel = automator.level >= automator.maxLevel;
+          const canBuy = shufflePoints >= automator.cost;
           
           return (
             <div 
               key={key} 
-              className={`automator-item ${isMaxLevel ? 'max-level' : shufflePoints >= automator.cost ? 'can-buy' : 'cannot-buy'}`}
-              onClick={() => !isMaxLevel && onBuyAutomator(key)}
+              className={`automator-item ${isMaxLevel ? 'max-level' : canBuy ? 'can-buy' : 'cannot-buy'}`}
+              onClick={() => !isMaxLevel && canBuy && onBuyAutomator(key)}
             >
-              <div className="automator-icon"><GiCardRandom /></div>
+              {/* Type indicator dot */}
+              <div className={`automator-type-indicator automator-type-${automator.type}`}></div>
+              
+              <div className="automator-icon">{getAutomatorIcon(key)}</div>
+              
               <div className="automator-info">
                 <div className="automator-header">
                   <h3>{getAutomatorName(key)}</h3>
                   <span className="automator-level">
-                    Level: {automator.level}/{automator.maxLevel}
+                    Lvl {automator.level}/{automator.maxLevel}
                   </span>
                 </div>
+                
                 <p className="automator-description">{automator.description || 'No description'}</p>
-                <div className="automator-details">
-                  <span className="automator-production">
-                    Current: {getAutomatorEffect(key, automator.level)}
-                  </span>
-                  {!isMaxLevel && (
-                    <span className="automator-next-level">
-                      Next: {getNextLevelEffect(key, automator.level)}
-                    </span>
-                  )}
-                </div>
+                
                 {!isMaxLevel ? (
-                  <div className="automator-cost">
-                    Cost: {formatNumber(automator.cost)} SP
-                  </div>
+                  <>
+                    <div className="automator-effects">
+                      <div className="effect-current">
+                        <span className="effect-label">{getProductionLabel(automator.type)}</span>
+                        <span className="effect-value">{getAutomatorEffect(key, automator.level)}</span>
+                      </div>
+                      
+                      <span className="effect-arrow">→</span>
+                      
+                      <div className="effect-next">
+                        <span className="effect-label">Next</span>
+                        <span className="effect-value">{getNextLevelEffect(key, automator.level)}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="automator-cost-wrapper">
+                      <span className="cost-label">Cost:</span>
+                      <span className="cost-value">{formatNumber(automator.cost)} SP</span>
+                    </div>
+                  </>
                 ) : (
-                  <div className="automator-max-level">
-                    MAX LEVEL
-                  </div>
+                  <div className="max-level-badge">MAXIMUM LEVEL REACHED</div>
                 )}
               </div>
             </div>
