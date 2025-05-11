@@ -7,9 +7,9 @@ function DebugButton({ onAddPoints }) {
       <button 
         className="debug-button" 
         onClick={onAddPoints}
-        title="Adds 1000K trillion SP for testing purposes"
+        title="Adds 1 nonillion SP for testing purposes"
       >
-        + 1000K T SP
+        + 1 Nonillion SP
       </button>
     </div>
   );
