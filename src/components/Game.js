@@ -409,7 +409,7 @@ function Game() {
       percentageMultiplier *= 1.5; // 50% increase per level
     }
     
-    // MULTIPLIER UPGRADES - Use predefined values from arrays
+    // MULTIPLIER UPGRADES - Use original arrays from the game
     // Deck multipliers - using array values directly (including base 1×)
     const deckMultipliers = [1, 2, 3, 6, 10, 15, 22, 30, 40, 55, 75, 100, 135, 180, 240, 
                            320, 430, 580, 780, 1050, 1400, 1900, 2500, 3400, 4500, 6000, 
@@ -427,8 +427,8 @@ function Game() {
                                 600000000000000, 1500000000000000, 3800000000000000, 
                                 9500000000000000, 24000000000000000, 60000000000000000, 
                                 150000000000000000, 380000000000000000, 950000000000000000, 
-                                2400000000000000000, 6000000000000000000, Number.MAX_SAFE_INTEGER, 
-                                Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER];
+                                2400000000000000000, 6000000000000000000, 1.5e+22, 
+                                3.8e+22, 9.5e+22, 2.4e+23];
 
     const deckLevel = upgrades.multiDeck.level;
     const deckMultiplier = deckLevel < deckMultipliers.length ? 
@@ -438,8 +438,10 @@ function Game() {
     const dimensionMultiplier = dimensionLevel < dimensionMultipliers.length ? 
       dimensionMultipliers[dimensionLevel] : dimensionMultipliers[dimensionMultipliers.length - 1];
     
-    // Calculate final value
+    // Calculate final value - REMOVED THE CAP
     const result = baseValue * percentageMultiplier * deckMultiplier * dimensionMultiplier;
+    
+    // Set value without capping
     setShufflesPerClick(result);
   };
   
@@ -559,7 +561,7 @@ function Game() {
       }
     });
     
-    // Calculate final production
+    // Calculate final production - NO CAP
     const total = baseProduction * percentageMultiplier * totalMultiplier;
     setShufflesPerSecond(total);
   };

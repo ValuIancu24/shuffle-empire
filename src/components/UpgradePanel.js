@@ -22,16 +22,54 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
     return num.toFixed(0);
   };
 
+  // Format percentage values
+  const formatPercentage = (value) => {
+    if (value < 1000) {
+      return `${value.toFixed(1)}%`;
+    } else {
+      return `${formatNumber(value)}%`;
+    }
+  };
+
   // Get current upgrade effect (absolute value)
   const getCurrentEffect = (upgrade, level) => {
     if (upgrade === 'technique' || upgrade === 'advancedTechnique') {
-      // Technique values - non-linear scaling
+      // Technique values - non-linear scaling with extended values beyond arrays
       if (upgrade === 'technique') {
+        // Defined values for first 15 levels
         const values = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120];
-        return `${level < values.length ? values[level] : (level >= values.length ? values[values.length-1] : 0)}`;
+        
+        // For levels within defined array, return the array value
+        if (level < values.length) {
+          return formatNumber(values[level]);
+        }
+        
+        // For levels beyond array, calculate with growth factor
+        let value = values[values.length - 1]; // Start with the last defined value
+        const growthFactor = 1.15; // 15% growth after level 15
+        
+        for (let i = values.length; i <= level; i++) {
+          value = Math.floor(value * growthFactor);
+        }
+        
+        return formatNumber(value);
       } else {
+        // Advanced technique values with extended progression
         const values = [0, 50, 100, 200, 350, 550, 800, 1200, 1700, 2500, 3500];
-        return `${level < values.length ? values[level] : (level >= values.length ? values[values.length-1] : 0)}`;
+        
+        if (level < values.length) {
+          return formatNumber(values[level]);
+        }
+        
+        // Growth for advanced technique is steeper
+        let value = values[values.length - 1];
+        const growthFactor = 1.25; // 25% growth after level 10
+        
+        for (let i = values.length; i <= level; i++) {
+          value = Math.floor(value * growthFactor);
+        }
+        
+        return formatNumber(value);
       }
     }
     else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment') {
@@ -42,7 +80,7 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       const multiplier = Math.pow(1 + (bonus / 100), level);
       const percentage = (multiplier - 1) * 100;
       
-      return `${percentage.toFixed(1)}%`;
+      return formatPercentage(percentage);
     }
     else if (upgrade === 'multiDeck' || upgrade === 'deckDimension') {
       // For multiplier upgrades, treat them like the automators
@@ -50,11 +88,39 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       if (level === 0) return '0';
       
       if (upgrade === 'multiDeck') {
+        // Base multipliers for levels 1-10
         const multipliers = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74]; // Bonus only (not including base 1×)
-        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}x`;
+        
+        if (level < multipliers.length) {
+          return `${formatNumber(multipliers[level])}x`;
+        }
+        
+        // Growth for higher levels
+        let value = multipliers[multipliers.length - 1];
+        const growthFactor = 1.2; // 20% growth per level after level 10
+        
+        for (let i = multipliers.length; i <= level; i++) {
+          value = Math.floor(value * growthFactor);
+        }
+        
+        return `${formatNumber(value)}x`;
       } else {
+        // Deck dimension multipliers for levels 1-10
         const multipliers = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999]; // Bonus only
-        return `${level < multipliers.length ? multipliers[level] : (level >= multipliers.length ? multipliers[multipliers.length-1] : 0)}x`;
+        
+        if (level < multipliers.length) {
+          return `${formatNumber(multipliers[level])}x`;
+        }
+        
+        // Growth for higher levels
+        let value = multipliers[multipliers.length - 1];
+        const growthFactor = 1.35; // 35% growth per level after level 10
+        
+        for (let i = multipliers.length; i <= level; i++) {
+          value = Math.floor(value * growthFactor);
+        }
+        
+        return `${formatNumber(value)}x`;
       }
     }
     return '0'; // Default fallback
@@ -67,22 +133,62 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
     if (nextLevel > manualUpgrades[upgrade].maxLevel) return "MAX";
     
     if (upgrade === 'technique' || upgrade === 'advancedTechnique') {
+      // Calculate raw values
+      let currentValue, nextValue;
+      
       if (upgrade === 'technique') {
-        // Special case for level 0 of technique
-        if (level === 0) {
-          return '+1'; // Show +1 for first level
+        const values = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120];
+        
+        // Get current value
+        if (level < values.length) {
+          currentValue = values[level];
+        } else {
+          currentValue = values[values.length - 1];
+          const growthFactor = 1.15;
+          for (let i = values.length; i <= level; i++) {
+            currentValue = Math.floor(currentValue * growthFactor);
+          }
         }
         
-        const values = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120];
-        const current = level < values.length ? values[level] : (level >= values.length ? values[values.length-1] : 0);
-        const next = nextLevel < values.length ? values[nextLevel] : values[values.length-1];
-        return `+${next - current}`;
-      } else {
+        // Get next value
+        if (nextLevel < values.length) {
+          nextValue = values[nextLevel];
+        } else {
+          nextValue = values[values.length - 1];
+          const growthFactor = 1.15;
+          for (let i = values.length; i <= nextLevel; i++) {
+            nextValue = Math.floor(nextValue * growthFactor);
+          }
+        }
+      } else { // advancedTechnique
         const values = [0, 50, 100, 200, 350, 550, 800, 1200, 1700, 2500, 3500];
-        const current = level < values.length ? values[level] : (level >= values.length ? values[values.length-1] : 0);
-        const next = nextLevel < values.length ? values[nextLevel] : values[values.length-1];
-        return `+${next - current}`;
+        
+        // Get current value
+        if (level < values.length) {
+          currentValue = values[level];
+        } else {
+          currentValue = values[values.length - 1];
+          const growthFactor = 1.25;
+          for (let i = values.length; i <= level; i++) {
+            currentValue = Math.floor(currentValue * growthFactor);
+          }
+        }
+        
+        // Get next value
+        if (nextLevel < values.length) {
+          nextValue = values[nextLevel];
+        } else {
+          nextValue = values[values.length - 1];
+          const growthFactor = 1.25;
+          for (let i = values.length; i <= nextLevel; i++) {
+            nextValue = Math.floor(nextValue * growthFactor);
+          }
+        }
       }
+      
+      // Calculate the difference and format
+      const difference = nextValue - currentValue;
+      return `+${formatNumber(difference)}`;
     }
     else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment') {
       // Quality bonus percentage calculation
@@ -100,23 +206,70 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       // Calculate percentage increase from current to next level
       const increaseFactor = ((nextMultiplier / currentMultiplier) - 1) * 100;
       
-      return `+${increaseFactor.toFixed(1)}%`;
+      // Format the percentage increase
+      if (increaseFactor < 1000) {
+        return `+${increaseFactor.toFixed(1)}%`;
+      } else {
+        return `+${formatNumber(increaseFactor)}%`;
+      }
     }
     else if (upgrade === 'multiDeck' || upgrade === 'deckDimension') {
-      // Get multiplier arrays (bonus values only, not including base 1×)
-      let bonusValues;
+      // Calculate raw multiplier values
+      let currentValue, nextValue;
+      
       if (upgrade === 'multiDeck') {
-        bonusValues = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74]; 
-      } else {
-        bonusValues = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999];
+        const multipliers = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74];
+        
+        // Get current value
+        if (level < multipliers.length) {
+          currentValue = multipliers[level];
+        } else {
+          currentValue = multipliers[multipliers.length - 1];
+          const growthFactor = 1.2;
+          for (let i = multipliers.length; i <= level; i++) {
+            currentValue = Math.floor(currentValue * growthFactor);
+          }
+        }
+        
+        // Get next value
+        if (nextLevel < multipliers.length) {
+          nextValue = multipliers[nextLevel];
+        } else {
+          nextValue = multipliers[multipliers.length - 1];
+          const growthFactor = 1.2;
+          for (let i = multipliers.length; i <= nextLevel; i++) {
+            nextValue = Math.floor(nextValue * growthFactor);
+          }
+        }
+      } else { // deckDimension
+        const multipliers = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999];
+        
+        // Get current value
+        if (level < multipliers.length) {
+          currentValue = multipliers[level];
+        } else {
+          currentValue = multipliers[multipliers.length - 1];
+          const growthFactor = 1.35;
+          for (let i = multipliers.length; i <= level; i++) {
+            currentValue = Math.floor(currentValue * growthFactor);
+          }
+        }
+        
+        // Get next value
+        if (nextLevel < multipliers.length) {
+          nextValue = multipliers[nextLevel];
+        } else {
+          nextValue = multipliers[multipliers.length - 1];
+          const growthFactor = 1.35;
+          for (let i = multipliers.length; i <= nextLevel; i++) {
+            nextValue = Math.floor(nextValue * growthFactor);
+          }
+        }
       }
       
-      // Get current and next bonus value
-      const current = level < bonusValues.length ? bonusValues[level] : bonusValues[bonusValues.length-1];
-      const next = nextLevel < bonusValues.length ? bonusValues[nextLevel] : bonusValues[bonusValues.length-1];
-      
-      // Show the absolute increase
-      return `+${next - current}x`;
+      // Calculate the difference and format
+      const difference = nextValue - currentValue;
+      return `+${formatNumber(difference)}x`;
     }
     return '0'; // Default fallback
   };

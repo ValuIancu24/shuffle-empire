@@ -24,6 +24,15 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
     return num.toExponential(2);
   };
 
+  // Format percentage values
+  const formatPercentage = (value) => {
+    if (value < 1000) {
+      return `${value.toFixed(1)}%`;
+    } else {
+      return `${formatNumber(value)}%`;
+    }
+  };
+
   // Get name for each automator
   const getAutomatorName = (key) => {
     switch(key) {
@@ -122,7 +131,9 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       // Calculate multiplicative percentage increase
       const multiplier = Math.pow(1 + (automator.percentage / 100), level);
       const percentage = (multiplier - 1) * 100;
-      return `${percentage.toFixed(1)}%`;
+      
+      // Format the percentage value
+      return formatPercentage(percentage);
     } else if (automator.type === 'multiplier') {
       // Show only the bonus (no + sign)
       return `${formatNumber(getMultiplierValue(key, level))}x`;
@@ -164,7 +175,12 @@ function AutomationPanel({ automators, shufflePoints, onBuyAutomator }) {
       // Calculate percentage increase from current to next level
       const increaseFactor = ((nextMultiplier / currentMultiplier) - 1) * 100;
       
-      return `+${increaseFactor.toFixed(1)}%`;
+      // Format the percentage increase
+      if (increaseFactor < 1000) {
+        return `+${increaseFactor.toFixed(1)}%`;
+      } else {
+        return `+${formatNumber(increaseFactor)}%`;
+      }
     }
     
     return 'Unknown';
