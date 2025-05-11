@@ -6,7 +6,10 @@ import {
   GiCardAceSpades,
   GiCardJoker,
   GiMagicSwirl,
-  GiCubes
+  GiCubes,
+  GiAtom,
+  GiSpaceNeedle,
+  GiEternalLove
 } from 'react-icons/gi';
 import './UpgradePanel.css';
 
@@ -18,8 +21,19 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
     if (num < 1000000000) return (num / 1000000).toFixed(2) + 'M';
     if (num < 1000000000000) return (num / 1000000000).toFixed(2) + 'B';
     if (num < 1000000000000000) return (num / 1000000000000).toFixed(2) + 'T';
-    if (num >= 1000000000000000) return num.toExponential(2);
-    return num.toFixed(0);
+    if (num < 1e18) return (num / 1e15).toFixed(2) + 'Qa';
+    if (num < 1e21) return (num / 1e18).toFixed(2) + 'Qi';
+    if (num < 1e24) return (num / 1e21).toFixed(2) + 'Sx';
+    if (num < 1e27) return (num / 1e24).toFixed(2) + 'Sp';
+    return num.toExponential(2);
+  };
+
+  // Format decimal values for multipliers
+  const formatDecimal = (num) => {
+    if (num === 0) return '0';
+    if (num < 0.1) return num.toFixed(2);
+    if (num < 1) return num.toFixed(1);
+    return formatNumber(num);
   };
 
   // Format percentage values
@@ -33,35 +47,38 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
 
   // Get current upgrade effect (absolute value)
   const getCurrentEffect = (upgrade, level) => {
-    if (upgrade === 'technique' || upgrade === 'advancedTechnique') {
-      // Technique values - non-linear scaling with extended values beyond arrays
+    if (upgrade === 'technique' || upgrade === 'advancedTechnique' || upgrade === 'quantumTechnique') {
+      // Technique values - non-linear scaling with more moderate values
       if (upgrade === 'technique') {
-        // Defined values for first 15 levels
-        const values = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120];
+        // More moderate values for technique (Fibonacci sequence)
+        const values = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 
+                      1597, 2584, 4181, 6765, 10946];
         
         // For levels within defined array, return the array value
         if (level < values.length) {
           return formatNumber(values[level]);
         }
         
-        // For levels beyond array, calculate with growth factor
-        let value = values[values.length - 1]; // Start with the last defined value
-        const growthFactor = 1.15; // 15% growth after level 15
+        // For levels beyond array, calculate with Fibonacci growth
+        let prev = values[values.length - 2];
+        let curr = values[values.length - 1];
         
         for (let i = values.length; i <= level; i++) {
-          value = Math.floor(value * growthFactor);
+          const next = prev + curr;
+          prev = curr;
+          curr = next;
         }
         
-        return formatNumber(value);
-      } else {
-        // Advanced technique values with extended progression
-        const values = [0, 50, 100, 200, 350, 550, 800, 1200, 1700, 2500, 3500];
+        return formatNumber(curr);
+      } else if (upgrade === 'advancedTechnique') {
+        // More moderate values for advanced technique
+        const values = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120]; 
         
         if (level < values.length) {
           return formatNumber(values[level]);
         }
         
-        // Growth for advanced technique is steeper
+        // Growth for advanced technique is more moderate
         let value = values[values.length - 1];
         const growthFactor = 1.25; // 25% growth after level 10
         
@@ -70,11 +87,30 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
         }
         
         return formatNumber(value);
+      } else { // quantumTechnique
+        // Quantum technique values - high values but more moderate
+        const values = [0, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
+                       
+        if (level < values.length) {
+          return formatNumber(values[level]);
+        }
+        
+        // Growth for quantum technique is still high but more moderate
+        let value = values[values.length - 1];
+        const growthFactor = 1.5; // 50% growth per level
+        
+        for (let i = values.length; i <= level; i++) {
+          value = Math.floor(value * growthFactor);
+        }
+        
+        return formatNumber(value);
       }
     }
-    else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment') {
-      // Quality bonus is 30% per level, Enchantment is 50% per level
-      const bonus = upgrade === 'cardQuality' ? 30 : 50;
+    else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment' || upgrade === 'cosmicCards') {
+      // More moderate percentage bonuses
+      const bonus = upgrade === 'cardQuality' ? 10 : // 10% per level (down from 40%)
+                  upgrade === 'cardEnchantment' ? 15 : // 15% per level (down from 70%)
+                  20; // 20% per level for cosmic cards (down from 100%)
       
       // Calculate multiplicative percentage increase
       const multiplier = Math.pow(1 + (bonus / 100), level);
@@ -82,45 +118,19 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       
       return formatPercentage(percentage);
     }
-    else if (upgrade === 'multiDeck' || upgrade === 'deckDimension') {
-      // For multiplier upgrades, treat them like the automators
-      // Show 0 for level 0, and the actual bonus beyond that (not the total multiplier)
-      if (level === 0) return '0';
+    else if (upgrade === 'multiDeck' || upgrade === 'deckDimension' || upgrade === 'infinityDeck') {
+      // For multiplier upgrades - SIMPLIFIED TO MATCH GAME.JS LOGIC
+      // Each level adds directly to the multiplier
       
       if (upgrade === 'multiDeck') {
-        // Base multipliers for levels 1-10
-        const multipliers = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74]; // Bonus only (not including base 1×)
-        
-        if (level < multipliers.length) {
-          return `${formatNumber(multipliers[level])}x`;
-        }
-        
-        // Growth for higher levels
-        let value = multipliers[multipliers.length - 1];
-        const growthFactor = 1.2; // 20% growth per level after level 10
-        
-        for (let i = multipliers.length; i <= level; i++) {
-          value = Math.floor(value * growthFactor);
-        }
-        
-        return `${formatNumber(value)}x`;
-      } else {
-        // Deck dimension multipliers for levels 1-10
-        const multipliers = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999]; // Bonus only
-        
-        if (level < multipliers.length) {
-          return `${formatNumber(multipliers[level])}x`;
-        }
-        
-        // Growth for higher levels
-        let value = multipliers[multipliers.length - 1];
-        const growthFactor = 1.35; // 35% growth per level after level 10
-        
-        for (let i = multipliers.length; i <= level; i++) {
-          value = Math.floor(value * growthFactor);
-        }
-        
-        return `${formatNumber(value)}x`;
+        // Each level adds 1x (level 5 = +5x multiplier)
+        return `${level}x`;
+      } else if (upgrade === 'deckDimension') {
+        // Each level adds 2x (level 5 = +10x multiplier)
+        return `${level * 2}x`;
+      } else { // infinityDeck
+        // Each level adds 5x (level 5 = +25x multiplier)
+        return `${level * 5}x`;
       }
     }
     return '0'; // Default fallback
@@ -132,19 +142,53 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
     
     if (nextLevel > manualUpgrades[upgrade].maxLevel) return "MAX";
     
-    if (upgrade === 'technique' || upgrade === 'advancedTechnique') {
+    if (upgrade === 'technique' || upgrade === 'advancedTechnique' || upgrade === 'quantumTechnique') {
       // Calculate raw values
       let currentValue, nextValue;
       
       if (upgrade === 'technique') {
-        const values = [0, 1, 3, 6, 10, 15, 20, 26, 33, 41, 50, 60, 72, 85, 100, 120];
+        // Fibonacci sequence for technique
+        const values = [0, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 
+                      1597, 2584, 4181, 6765, 10946];
+        
+        // Get current value
+        if (level < values.length) {
+          currentValue = values[level];
+        } else {
+          // Calculate Fibonacci number for current level
+          let a = values[values.length - 2];
+          let b = values[values.length - 1];
+          for (let i = values.length; i <= level; i++) {
+            const temp = a + b;
+            a = b;
+            b = temp;
+          }
+          currentValue = b;
+        }
+        
+        // Get next value
+        if (nextLevel < values.length) {
+          nextValue = values[nextLevel];
+        } else {
+          // Calculate Fibonacci number for next level
+          let a = values[values.length - 2];
+          let b = values[values.length - 1];
+          for (let i = values.length; i <= nextLevel; i++) {
+            const temp = a + b;
+            a = b;
+            b = temp;
+          }
+          nextValue = b;
+        }
+      } else if (upgrade === 'advancedTechnique') {
+        const values = [0, 10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120];
         
         // Get current value
         if (level < values.length) {
           currentValue = values[level];
         } else {
           currentValue = values[values.length - 1];
-          const growthFactor = 1.15;
+          const growthFactor = 1.25;
           for (let i = values.length; i <= level; i++) {
             currentValue = Math.floor(currentValue * growthFactor);
           }
@@ -155,20 +199,20 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
           nextValue = values[nextLevel];
         } else {
           nextValue = values[values.length - 1];
-          const growthFactor = 1.15;
+          const growthFactor = 1.25;
           for (let i = values.length; i <= nextLevel; i++) {
             nextValue = Math.floor(nextValue * growthFactor);
           }
         }
-      } else { // advancedTechnique
-        const values = [0, 50, 100, 200, 350, 550, 800, 1200, 1700, 2500, 3500];
+      } else { // quantumTechnique
+        const values = [0, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000];
         
         // Get current value
         if (level < values.length) {
           currentValue = values[level];
         } else {
           currentValue = values[values.length - 1];
-          const growthFactor = 1.25;
+          const growthFactor = 1.5;
           for (let i = values.length; i <= level; i++) {
             currentValue = Math.floor(currentValue * growthFactor);
           }
@@ -179,7 +223,7 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
           nextValue = values[nextLevel];
         } else {
           nextValue = values[values.length - 1];
-          const growthFactor = 1.25;
+          const growthFactor = 1.5;
           for (let i = values.length; i <= nextLevel; i++) {
             nextValue = Math.floor(nextValue * growthFactor);
           }
@@ -190,9 +234,11 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       const difference = nextValue - currentValue;
       return `+${formatNumber(difference)}`;
     }
-    else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment') {
-      // Quality bonus percentage calculation
-      const bonus = upgrade === 'cardQuality' ? 30 : 50;
+    else if (upgrade === 'cardQuality' || upgrade === 'cardEnchantment' || upgrade === 'cosmicCards') {
+      // Quality bonus percentage calculation with more moderate values
+      const bonus = upgrade === 'cardQuality' ? 10 : // 10% per level
+                  upgrade === 'cardEnchantment' ? 15 : // 15% per level
+                  20; // 20% per level for cosmic cards
       
       // For first level, show the direct percentage
       if (level === 0) {
@@ -213,63 +259,20 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
         return `+${formatNumber(increaseFactor)}%`;
       }
     }
-    else if (upgrade === 'multiDeck' || upgrade === 'deckDimension') {
-      // Calculate raw multiplier values
-      let currentValue, nextValue;
+    else if (upgrade === 'multiDeck' || upgrade === 'deckDimension' || upgrade === 'infinityDeck') {
+      // For multiplier upgrades - SIMPLIFIED TO MATCH GAME.JS LOGIC
+      // Fixed increment per level
       
       if (upgrade === 'multiDeck') {
-        const multipliers = [0, 1, 2, 5, 9, 14, 21, 29, 39, 54, 74];
-        
-        // Get current value
-        if (level < multipliers.length) {
-          currentValue = multipliers[level];
-        } else {
-          currentValue = multipliers[multipliers.length - 1];
-          const growthFactor = 1.2;
-          for (let i = multipliers.length; i <= level; i++) {
-            currentValue = Math.floor(currentValue * growthFactor);
-          }
-        }
-        
-        // Get next value
-        if (nextLevel < multipliers.length) {
-          nextValue = multipliers[nextLevel];
-        } else {
-          nextValue = multipliers[multipliers.length - 1];
-          const growthFactor = 1.2;
-          for (let i = multipliers.length; i <= nextLevel; i++) {
-            nextValue = Math.floor(nextValue * growthFactor);
-          }
-        }
-      } else { // deckDimension
-        const multipliers = [0, 4, 14, 39, 99, 249, 599, 1499, 3799, 9499, 23999];
-        
-        // Get current value
-        if (level < multipliers.length) {
-          currentValue = multipliers[level];
-        } else {
-          currentValue = multipliers[multipliers.length - 1];
-          const growthFactor = 1.35;
-          for (let i = multipliers.length; i <= level; i++) {
-            currentValue = Math.floor(currentValue * growthFactor);
-          }
-        }
-        
-        // Get next value
-        if (nextLevel < multipliers.length) {
-          nextValue = multipliers[nextLevel];
-        } else {
-          nextValue = multipliers[multipliers.length - 1];
-          const growthFactor = 1.35;
-          for (let i = multipliers.length; i <= nextLevel; i++) {
-            nextValue = Math.floor(nextValue * growthFactor);
-          }
-        }
+        // Each level adds 1x
+        return `+1x`; 
+      } else if (upgrade === 'deckDimension') {
+        // Each level adds 2x
+        return `+2x`;
+      } else { // infinityDeck
+        // Each level adds 5x
+        return `+5x`;
       }
-      
-      // Calculate the difference and format
-      const difference = nextValue - currentValue;
-      return `+${formatNumber(difference)}x`;
     }
     return '0'; // Default fallback
   };
@@ -283,6 +286,9 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       case 'advancedTechnique': return 'Advanced Technique';
       case 'cardEnchantment': return 'Card Enchantment';
       case 'deckDimension': return 'Deck Dimension';
+      case 'quantumTechnique': return 'Quantum Technique';
+      case 'cosmicCards': return 'Cosmic Cards';
+      case 'infinityDeck': return 'Infinity Deck';
       default: return key;
     }
   };
@@ -296,6 +302,9 @@ function UpgradePanel({ manualUpgrades, shufflePoints, onBuyUpgrade }) {
       case 'advancedTechnique': return <GiUpgrade />;
       case 'cardEnchantment': return <GiMagicSwirl />;
       case 'deckDimension': return <GiCubes />;
+      case 'quantumTechnique': return <GiAtom />;
+      case 'cosmicCards': return <GiSpaceNeedle />;
+      case 'infinityDeck': return <GiEternalLove />;
       default: return <GiCardRandom />;
     }
   };
