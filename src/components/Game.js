@@ -5,7 +5,7 @@ import AutomationPanel from './AutomationPanel';
 import StatsDisplay from './StatsDisplay';
 import ResetButton from './ResetButton';
 import OfflineProgressModal from './OfflineProgressModal';
-import DebugButton from './DebugButton'; // Import the new DebugButton component
+import DebugButton from './DebugButton';
 import './Game.css';
 
 function Game() {
@@ -624,28 +624,35 @@ function Game() {
         <h1>Shuffle Empire</h1>
       </div>
       
-      <div className="stats-section">
-        <StatsDisplay 
-          shuffleCount={shuffleCount} 
-          shufflesPerSecond={shufflesPerSecond}
-          shufflesPerClick={shufflesPerClick}
-          shufflePoints={shufflePoints}
-          logProgressPercent={logProgressPercent}
-          progressPercent={progressPercent}
-        />
-      </div>
-      
-      <div className="shuffle-section">
-        <ShuffleArea onShuffle={handleShuffle} />
-      </div>
-      
-      <div className="upgrade-container">
+      {/* Left Side - Manual Upgrades */}
+      <div className="manual-upgrade-container">
         <UpgradePanel 
           manualUpgrades={manualUpgrades}
           shufflePoints={shufflePoints}
           onBuyUpgrade={handleBuyUpgrade}
         />
+      </div>
+      
+      {/* Center - Stats and Shuffle Button */}
+      <div className="center-container">
+        <div className="stats-section">
+          <StatsDisplay 
+            shuffleCount={shuffleCount} 
+            shufflesPerSecond={shufflesPerSecond}
+            shufflesPerClick={shufflesPerClick}
+            shufflePoints={shufflePoints}
+            logProgressPercent={logProgressPercent}
+            progressPercent={progressPercent}
+          />
+        </div>
         
+        <div className="shuffle-section">
+          <ShuffleArea onShuffle={handleShuffle} />
+        </div>
+      </div>
+      
+      {/* Right Side - Automation */}
+      <div className="automation-container">
         <AutomationPanel 
           automators={automators}
           shufflePoints={shufflePoints}

@@ -1,13 +1,23 @@
 .automation-panel {
-  background-color: #1e222a;
-  border-radius: 8px;
-  padding: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to bottom, #24283a, #1a1e2a);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   height: 100%;
-  min-height: 250px;
+  border: 1px solid #373d52;
+}
+
+.automation-panel h2 {
+  font-size: 20px;
+  margin: 0 0 10px 0;
+  color: #f5cb5c;
+  border-bottom: 1px solid #3d4555;
+  padding-bottom: 8px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .automators-list {
@@ -22,17 +32,19 @@
 
 .automator-item {
   display: flex;
-  background-color: #2c313c;
-  border-radius: 6px;
-  padding: 12px;
+  background: linear-gradient(135deg, #2c313c, #232831);
+  border-radius: 8px;
+  padding: 8px 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid transparent;
+  border: 1px solid #3d4252;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .automator-item.can-buy {
   border-color: #50c878;
-  background: linear-gradient(to right, #2c313c, #2c3c34);
+  background: linear-gradient(135deg, #2c313c, #2c3c34);
+  box-shadow: 0 0 8px rgba(80, 200, 120, 0.3);
 }
 
 .automator-item.cannot-buy {
@@ -41,30 +53,41 @@
 }
 
 .automator-item.max-level {
-  background-color: #3d4252;
+  background: linear-gradient(135deg, #3d4252, #4a463a);
   border-color: #f5cb5c;
   cursor: default;
-  background: linear-gradient(to right, #3d4252, #4a463a);
+  box-shadow: 0 0 8px rgba(245, 203, 92, 0.3);
 }
 
 .automator-item.can-buy:hover {
-  background-color: #343b4a;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 .automator-icon {
-  font-size: 30px;
-  margin-right: 12px;
+  font-size: 24px;
+  margin-right: 10px;
   color: #f5cb5c;
   display: flex;
   align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 6px;
+  min-width: 36px;
+  min-height: 36px;
+  transition: all 0.2s ease;
+}
+
+.automator-item:hover .automator-icon {
+  transform: scale(1.1);
 }
 
 .automator-info {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Automator Header - Name and Level */
@@ -72,40 +95,56 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 5px;
+  margin-bottom: 2px;
 }
 
 .automator-info h3 {
-  font-size: 16px;
+  font-size: 14px;
   margin: 0;
   color: #ffffff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .automator-level {
-  font-size: 12px;
-  background-color: rgba(245, 203, 92, 0.2);
+  font-size: 11px;
+  background: linear-gradient(135deg, rgba(245, 203, 92, 0.2), rgba(245, 203, 92, 0.3));
   padding: 2px 6px;
   border-radius: 10px;
   color: #f5cb5c;
   font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Automator Description */
+/* Automator Description - Show more on hover */
 .automator-description {
-  font-size: 12px;
-  margin: 0 0 8px 0;
+  font-size: 11px;
+  margin: 0 0 4px 0;
   color: #a0a8b7;
-  line-height: 1.3;
+  line-height: 1.2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  line-clamp: 1; /* Standard property for compatibility */
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.automator-item:hover .automator-description {
+  -webkit-line-clamp: 2;
+  line-clamp: 2; /* Standard property for compatibility */
 }
 
 /* Automator Effect Box */
 .automator-effects {
   display: flex;
-  background-color: rgba(0, 0, 0, 0.15);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.15));
   border-radius: 4px;
-  padding: 6px 8px;
-  margin-bottom: 8px;
+  padding: 4px 6px;
+  margin-bottom: 4px;
   justify-content: space-between;
   align-items: center;
 }
@@ -117,9 +156,9 @@
 }
 
 .effect-label {
-  font-size: 11px;
+  font-size: 9px;
   color: #8d99ae;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
   text-transform: uppercase;
   display: flex;
   align-items: center;
@@ -127,36 +166,40 @@
 }
 
 .effect-value {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: bold;
 }
 
 /* Color coding based on automator type */
 .automator-type-flat .effect-value {
   color: #64b5f6; /* Light blue for flat */
+  text-shadow: 0 0 5px rgba(100, 181, 246, 0.5);
 }
 
 .automator-type-percentage .effect-value {
   color: #81c784; /* Light green for percentage */
+  text-shadow: 0 0 5px rgba(129, 199, 132, 0.5);
 }
 
 .automator-type-multiplier .effect-value {
   color: #ba68c8; /* Purple for multiplier */
+  text-shadow: 0 0 5px rgba(186, 104, 200, 0.5);
 }
 
 .effect-arrow {
   color: #8d99ae;
-  margin: 0 8px;
-  font-size: 14px;
+  margin: 0 4px;
+  font-size: 12px;
 }
 
 /* Type indicator in label */
 .type-icon {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   border-radius: 2px;
   display: inline-block;
-  margin-right: 3px;
+  margin-right: 2px;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.5);
 }
 
 .type-icon-flat {
@@ -180,27 +223,29 @@
 
 .cost-label {
   color: #8d99ae;
-  font-size: 12px;
-  margin-right: 5px;
+  font-size: 11px;
+  margin-right: 4px;
 }
 
 .cost-value {
-  background-color: rgba(80, 200, 120, 0.2);
-  font-size: 14px;
+  background: linear-gradient(135deg, rgba(80, 200, 120, 0.2), rgba(80, 200, 120, 0.3));
+  font-size: 12px;
   color: #4caf50;
   font-weight: bold;
-  padding: 2px 6px;
+  padding: 2px 4px;
   border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .max-level-badge {
-  background-color: rgba(245, 203, 92, 0.2);
-  padding: 3px 8px;
+  background: linear-gradient(135deg, rgba(245, 203, 92, 0.2), rgba(245, 203, 92, 0.3));
+  padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: bold;
   color: #f5cb5c;
   text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Custom scrollbar for the automators list */
@@ -209,7 +254,7 @@
 }
 
 .automators-list::-webkit-scrollbar-track {
-  background: #1e222a;
+  background: rgba(30, 34, 42, 0.5);
   border-radius: 3px;
 }
 
